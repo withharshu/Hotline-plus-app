@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HOTLINE PLUS | Dispatch</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f5f9;color:#172033;
+font-family:Arial,sans-serif}
+header{background:#102747;color:white;padding:22px 16px}
+header h1{margin:0;font-size:24px}
+header p{margin:7px 0 0;color:#cbd8e8}
+main{padding:16px;max-width:850px;margin:auto}
+.card{background:white;border-radius:14px;padding:18px;
+margin-bottom:16px;box-shadow:0 3px 12px #0000000b}
+h2{font-size:19px;margin-top:0}
+label{display:block;font-weight:bold;font-size:13px;margin:13px 0 6px}
+input,select,button{width:100%;padding:12px;border-radius:8px;
+border:1px solid #cbd5e1;font-size:15px}
+button{background:#1457c5;color:white;border:0;
+font-weight:bold;margin-top:16px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#e5edff;padding:14px;border-radius:10px}
+.stat strong{display:block;font-size:24px;margin-top:7px}
+.small{font-size:12px;color:#64748b}
+.entry{padding:12px 0;border-bottom:1px solid #e2e8f0}
+</style>
+</head>
+<body>
+<header>
+<h1>HOTLINE PLUS®</h1>
+<p>Daily Dispatch Management</p>
+</header>
+<main>
+<div class="card">
+<h2>Dispatch Dashboard</h2>
+<div class="stats">
+<div class="stat">Total Entries<strong id="count">0</strong></div>
+<div class="stat">Total Quantity<strong id="qty">0</strong></div>
+</div>
+<p class="small">Entries saved in this browser on this device.</p>
+</div>
+
+<div class="card">
+<h2>New Dispatch Entry</h2>
+<form id="dispatchForm">
+<label>Date</label>
+<input type="date" id="date" required>
+
+<label>Product Name</label>
+<input list="products" id="product" placeholder="Select or type product" required>
+<datalist id="products">
+<option value="DEEP FRYER SINGLE">
+<option value="DEEP FRYER DOUBLE">
+<option value="ELECTRIC KETTLE">
+<option value="HOT CASE MINI SLIDING">
+<option value="HOT CASE MINI SLIDING LED LIGHT">
+<option value="HOT CASE MINI SLIDING DOUBLE GLASS">
+<option value="HOT CASE MINI DOOR">
+<option value="HOT CASE SLIDING">
+<option value="HOT CASE SLIDING BLACK TRAY">
+<option value="HOT CASE SLIDING LED LIGHT">
+<option value="HOT CASE SLIDING STEEL LED LIGHT">
+<option value="HOT CASE SLIDING DOUBLE GLASS LED">
+<option value="HOT CASE SLIDING DOUBLE GLASS STEEL LED">
+<option value="HOT CASE BIG DOOR">
+<option value="ERA DULUX">
+<option value="HOT CASE MINI TOWER">
+<option value="HOT CASE MEDIUM TOWER">
+<option value="HOT CASE BIG TOWER">
+<option value="BARBEQUE / BBQ">
+<option value="INSECT KILLER">
+<option value="TANDOOR ZIP">
+</datalist>
+
+<label>Quantity</label>
+<input type="number" id="quantity" min="1" step="1" required>
+
+<label>Party Name</label>
+<input id="party" placeholder="Enter party name" required>
+
+<label>Transport Name</label>
+<input id="transport" placeholder="Enter transport name">
+
+<label>Receiving Person</label>
+<input id="receiving" placeholder="Person receiving parchi/bilty">
+
+<label>Worker Name</label>
+<input id="worker" placeholder="Enter worker name">
+
+<button type="submit">Save Dispatch Entry</button>
+</form>
+</div>
+
+<div class="card">
+<h2>Recent Dispatch Entries</h2>
+<div id="entries">No entries yet.</div>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const key="hotlinePlusDispatchV1";
+let records=[];
+try{records=JSON.parse(localStorage.getItem(key)||"[]")}catch(e){}
+$("date").value=new Date().toLocaleDateString("en-CA");
+function render(){
+$("count").textContent=records.length;
+$("qty").textContent=records.reduce((s,r)=>s+Number(r.quantity),0);
+$("entries").innerHTML=records.length?records.slice().reverse().map(r=>
+`<div class="entry"><b>${escapeText(r.product)}</b> × ${r.quantity}
+<div>${escapeText(r.date)} · ${escapeText(r.party)}</div>
+<div class="small">${escapeText(r.transport||"No transport")} · Worker: ${escapeText(r.worker||"-")}</div></div>`
+).join(""):"No entries yet.";
+}
+function escapeText(s){
+return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+$("dispatchForm").addEventListener("submit",e=>{
+e.preventDefault();
+records.push({
+date:$("date").value,product:$("product").value.trim(),
+quantity:Number($("quantity").value),party:$("party").value.trim(),
+transport:$("transport").value.trim(),receiving:$("receiving").value.trim(),
+worker:$("worker").value.trim()
+});
+try{localStorage.setItem(key,JSON.stringify(records))}
+catch(err){alert("Could not save. Browser storage may be full.");return}
+render();
+const date=$("date").value;
+$("dispatchForm").reset();
+$("date").value=date;
+alert("Dispatch entry saved on this device.");
+});
+render();
+</script>
+</body>
+  </html>
